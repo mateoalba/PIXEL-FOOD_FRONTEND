@@ -186,8 +186,8 @@ export default function PagoPage() {
               <ArrowLeft className="w-6 h-6 text-[#263238]" strokeWidth={3} />
             </button>
             <div>
-              <h1 className="pixel-font text-2xl md:text-3xl text-white leading-relaxed">PAGO Y CAJA</h1>
-              <p className="text-yellow-400 font-bold uppercase text-[10px]">Cajero: {user?.nombre || 'Admin'}</p>
+              <h1 className="text-2xl md:text-3xl text-white font-black uppercase italic leading-none">Pago y Caja</h1>
+            <p className="text-yellow-400 font-bold mt-1 uppercase text-xs tracking-widest">Completa tu pago de forma segura</p>
             </div>
           </div>
           <ProtectedButton permisos={['ver_metodos_pago']}>
