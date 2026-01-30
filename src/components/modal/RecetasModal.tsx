@@ -6,7 +6,7 @@ import type { Receta } from '@/types/receta';
 import type { Ingrediente } from '@/types/ingrediente';
 import type { Plato } from '@/types/plato';
 import ProtectedButton from '../ProtectedButton';
-import { X, ChefHat, PlusCircle, Trash2 } from 'lucide-react';
+import { X, PlusCircle, Trash2 } from 'lucide-react';
 
 interface Props {
   plato: Plato | null; 
