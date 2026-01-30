@@ -133,13 +133,14 @@ const Home = () => {
         <h2 className="pixel-font text-3xl md:text-5xl text-center mb-16 uppercase leading-relaxed">Categorías</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {categories.map((cat, i) => (
-            <div key={i} className="bg-white border-4 border-black p-8 text-center shadow-[8px_8px_0px_#000] hover:translate-x-1 hover:translate-y-1 transition-transform cursor-pointer group">
+            /* ENVOLVEMOS LA CARD EN UN LINK */
+            <Link to="/menu" key={i} className="bg-white border-4 border-black p-8 text-center shadow-[8px_8px_0px_#000] hover:translate-x-1 hover:translate-y-1 transition-transform cursor-pointer group block">
               <div className={`${cat.color} w-24 h-24 border-4 border-black mx-auto mb-6 flex items-center justify-center text-white shadow-[4px_4px_0px_#000]`}>
                 {cat.icon}
               </div>
-              <h3 className="text-2xl font-black uppercase mb-1">{cat.name}</h3>
+              <h3 className="text-2xl font-black uppercase mb-1 text-black">{cat.name}</h3>
               <p className="text-sm font-bold text-gray-400 uppercase">{cat.items}</p>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
