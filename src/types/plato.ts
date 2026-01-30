@@ -6,6 +6,7 @@ export interface Plato {
   descripcion: string;
   precio: number;
   disponible: boolean;
+  imagen?: string;
   // Relaciones
   categoria?: Categoria; 
   id_categoria?: string; // Campo auxiliar para el formulario

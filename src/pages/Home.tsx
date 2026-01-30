@@ -32,7 +32,7 @@ const Home = () => {
   }, []);
 
   const categories = [
-    { name: 'Hamburguesas', icon: <Pizza className="w-10 h-10" />, color: 'bg-[#E53935]', items: '12 opciones' },
+    { name: 'Pizzas', icon: <Pizza className="w-10 h-10" />, color: 'bg-[#E53935]', items: '12 opciones' },
     { name: 'Papas Fritas', icon: <Flame className="w-10 h-10" />, color: 'bg-[#FBC02D]', items: '8 opciones' },
     { name: 'Bebidas', icon: <Coffee className="w-10 h-10" />, color: 'bg-[#43A047]', items: '15 opciones' },
     { name: 'Combos', icon: <Drumstick className="w-10 h-10" />, color: 'bg-[#FB8C00]', items: '10 opciones' },

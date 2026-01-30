@@ -6,6 +6,7 @@ import type { Receta } from '@/types/receta';
 import type { Ingrediente } from '@/types/ingrediente';
 import type { Plato } from '@/types/plato';
 import ProtectedButton from '../ProtectedButton';
+import { X, ChefHat, PlusCircle, Trash2 } from 'lucide-react';
 
 interface Props {
   plato: Plato | null; 
@@ -75,14 +76,11 @@ export const RecetasModal = ({ plato: initialPlato, open, onClose }: Props) => {
   };
 
   const handleAdd = async () => {
-    // 1. VALIDACIÓN DE CANTIDAD POSITIVA
     if (Number(cantidad) <= 0) {
       alert("La cantidad debe ser un número positivo mayor a cero.");
       return;
     }
-
     if (!selectedIngrediente || !cantidad || !platoLocal) return;
-
     if (ingredienteYaExiste(selectedIngrediente)) {
         alert("Este insumo ya está en la receta.");
         return;
@@ -94,7 +92,6 @@ export const RecetasModal = ({ plato: initialPlato, open, onClose }: Props) => {
         id_ingrediente: selectedIngrediente,
         cantidad: Number(cantidad)
       });
-      
       setSelectedIngrediente('');
       setCantidad('');
       cargarIngredientesPlato(platoLocal.id_plato); 
@@ -116,132 +113,142 @@ export const RecetasModal = ({ plato: initialPlato, open, onClose }: Props) => {
 
   if (!open) return null;
 
+  // CLASE EXACTA DEL CRUD MODAL
+  const inputClass = "w-full bg-white border-4 border-black px-5 py-3 text-lg font-black text-[#263238] uppercase outline-none transition-all focus:bg-yellow-50 focus:translate-x-1 focus:translate-y-1 focus:shadow-none shadow-[4px_4px_0px_#000]";
+
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 bg-[#263238]/90 backdrop-blur-sm flex items-center justify-center z-100 p-4 md:p-10">
+      
+      {/* CONTENEDOR ANCHO max-w-4xl IGUAL AL CRUD MODAL */}
+      <div className="bg-white border-8 border-black shadow-[15px_15px_0px_#000] w-full max-w-4xl overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
         
-        <div className="p-5 border-b flex justify-between items-center bg-gray-50 rounded-t-xl">
+        {/* HEADER IDÉNTICO CON p-8 Y text-3xl */}
+        <div className="bg-[#263238] p-8 flex justify-between items-center relative border-b-8 border-black">
+          <div className="absolute top-0 left-0 w-3 h-full bg-[#E53935]"></div>
           <div>
-            <h3 className="text-lg font-bold text-gray-800 uppercase">
-              {platoLocal 
-                ? <>Ingredientes de: <span className="text-orange-600">{platoLocal.nombre}</span></>
-                : "Crear Nueva Receta"
-              }
-            </h3>
+            <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter" style={{ textShadow: '2px 2px 0px #E53935' }}>
+              {platoLocal ? `RECETA: ${platoLocal.nombre}` : 'CREAR NUEVA RECETA'}
+            </h2>
+            <p className="text-yellow-400 text-xs font-black tracking-[0.2em] uppercase mt-1">ESTACIÓN DE CONTROL</p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl">×</button>
+          <button 
+            onClick={onClose} 
+            className="bg-[#E53935] border-4 border-black text-white p-2 hover:bg-white hover:text-black transition-all shadow-[4px_4px_0px_#000] active:shadow-none active:translate-x-1 active:translate-y-1"
+          >
+            <X className="w-6 h-6" strokeWidth={4} />
+          </button>
         </div>
 
-        <div className="p-6 overflow-y-auto">
+        {/* CUERPO CON p-8 Y BG GRISÁCEO */}
+        <div className="p-8 bg-[#F4F7F6] overflow-y-auto custom-scrollbar">
+          
+          {/* SELECCIÓN DE PLATO (ESTILO CARD DEL CRUD) */}
           {!initialPlato && (
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-lg">
-              <label className="block text-[10px] font-black text-blue-800 uppercase mb-2">1. Selecciona el Plato del Menú</label>
+            <div className="mb-8 p-6 bg-white border-4 border-black shadow-[4px_4px_0px_#000]">
+              <label className="block text-xs font-black text-[#263238] uppercase tracking-widest mb-3 italic">
+                1. SELECCIONAR PLATO DEL MENÚ
+              </label>
               <select 
-                className="w-full border-2 border-blue-200 rounded-md p-2 text-sm font-bold focus:border-blue-500 outline-none"
+                className={inputClass}
                 value={platoLocal?.id_plato || ''}
                 onChange={(e) => handlePlatoChange(e.target.value)}
               >
-                <option value="">-- Seleccionar un plato --</option>
+                <option value="">-- SELECCIONAR... --</option>
                 {todosPlatos.map(p => (
-                  <option key={p.id_plato} value={p.id_plato}>{p.nombre}</option>
+                  <option key={p.id_plato} value={p.id_plato} className="font-black">{p.nombre.toUpperCase()}</option>
                 ))}
               </select>
             </div>
           )}
 
-          <div className={!platoLocal ? "opacity-40 pointer-events-none" : ""}>
+          <div className={!platoLocal ? "opacity-30 pointer-events-none" : ""}>
             <ProtectedButton permisos={['crear_recetas']}>
-              <>
-                <label className="block text-[10px] font-black text-gray-400 uppercase mb-2">2. Añadir Insumos</label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6 p-4 bg-gray-50 border rounded-lg">
-                  <div className="md:col-span-1">
-                    <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Insumo</label>
+              <div className="mb-8 p-6 bg-white border-4 border-black shadow-[4px_4px_0px_#000]">
+                <label className="block text-xs font-black text-[#263238] uppercase tracking-widest mb-4 italic">
+                  2. AÑADIR INSUMOS AL SISTEMA
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                  <div className="md:col-span-6">
                     <select 
-                      className="w-full border rounded-md p-2 text-sm"
+                      className={inputClass}
                       value={selectedIngrediente}
                       onChange={(e) => setSelectedIngrediente(e.target.value)}
                     >
-                      <option value="">Seleccionar...</option>
-                      {todosIngredientes.map(ing => {
-                        const yaAgregado = ingredienteYaExiste(ing.id_ingrediente);
-                        return (
-                          <option 
-                            key={ing.id_ingrediente} 
-                            value={ing.id_ingrediente}
-                            disabled={yaAgregado}
-                            className={yaAgregado ? "text-gray-300 italic" : ""}
-                          >
-                            {ing.nombre} ({ing.unidad_medida}) {yaAgregado ? '✓' : ''}
-                          </option>
-                        );
-                      })}
+                      <option value="">SELECCIONAR INSUMO...</option>
+                      {todosIngredientes.map(ing => (
+                        <option 
+                          key={ing.id_ingrediente} 
+                          value={ing.id_ingrediente}
+                          disabled={ingredienteYaExiste(ing.id_ingrediente)}
+                          className="font-black"
+                        >
+                          {ing.nombre.toUpperCase()} ({ing.unidad_medida})
+                        </option>
+                      ))}
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Cantidad</label>
+                  <div className="md:col-span-3">
                     <input 
                       type="number" 
-                      min="0.01" // Evita negativos en selectores de flechas
-                      step="0.01" 
-                      className="w-full border rounded-md p-2 text-sm"
-                      placeholder="0.00"
+                      min="0.01" step="0.01" 
+                      className={inputClass}
+                      placeholder="CANT."
                       value={cantidad}
                       onChange={(e) => {
                         const val = e.target.value === '' ? '' : Number(e.target.value);
-                        // No permite escribir el signo menos
                         if (typeof val === 'number' && val < 0) return;
                         setCantidad(val);
                       }}
                     />
                   </div>
-                  <div className="flex items-end">
+                  <div className="md:col-span-3">
                     <button 
                       onClick={handleAdd}
-                      // Se bloquea si no hay datos, si el ingrediente existe o si la cantidad es <= 0
                       disabled={!selectedIngrediente || !cantidad || Number(cantidad) <= 0 || ingredienteYaExiste(selectedIngrediente)}
-                      className="w-full bg-orange-600 text-white font-bold py-2 rounded-md hover:bg-orange-700 disabled:bg-gray-300 transition-all shadow-sm"
+                      className="w-full h-full bg-[#43A047] text-white border-4 border-black font-black uppercase text-sm shadow-[4px_4px_0px_#000] active:shadow-none active:translate-x-1 active:translate-y-1 disabled:bg-gray-200 disabled:text-gray-400 transition-all flex items-center justify-center gap-2 py-4"
                     >
-                      {ingredienteYaExiste(selectedIngrediente) ? 'Ya Agregado' : 'Añadir'}
+                      <PlusCircle className="w-5 h-5" /> AÑADIR
                     </button>
                   </div>
                 </div>
-              </>
+              </div>
             </ProtectedButton>
 
-            <div className="border rounded-lg overflow-hidden">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-gray-100 text-gray-500 font-bold uppercase text-[10px]">
+            {/* TABLA CON ESTILO DE BORDES CRUD */}
+            <div className="bg-white border-4 border-black shadow-[8px_8px_0px_#000] overflow-hidden">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-[#263238] text-white font-black uppercase text-[10px] tracking-[0.2em]">
                   <tr>
-                    <th className="px-4 py-2">Insumo</th>
-                    <th className="px-4 py-2 text-center">Cantidad</th>
-                    <th className="px-4 py-2 text-center">Acción</th>
+                    <th className="px-6 py-4 border-b-4 border-black">INSUMO</th>
+                    <th className="px-6 py-4 border-b-4 border-black text-center">CANTIDAD</th>
+                    <th className="px-6 py-4 border-b-4 border-black text-center">ACCIÓN</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y">
+                <tbody className="divide-y-4 divide-black/5">
                   {receta.map((r) => (
-                    <tr key={r.id_receta} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3 font-semibold text-gray-700">{r.ingrediente?.nombre}</td>
-                      <td className="px-4 py-3 text-center">
-                        <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded font-bold">
-                          {r.cantidad} {r.ingrediente?.unidad_medida}
+                    <tr key={r.id_receta} className="hover:bg-yellow-50 transition-colors">
+                      <td className="px-6 py-4 font-black text-[#263238] uppercase italic text-lg">{r.ingrediente?.nombre}</td>
+                      <td className="px-6 py-4 text-center">
+                        <span className="bg-white border-4 border-black px-4 py-1 font-black text-sm shadow-[3px_3px_0px_#000]">
+                          {r.cantidad} {r.ingrediente?.unidad_medida.toUpperCase()}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-center">
+                      <td className="px-6 py-4 text-center">
                         <ProtectedButton permisos={['eliminar_recetas']}>
                           <button 
                             onClick={() => handleDelete(r.id_receta)}
-                            className="text-red-500 hover:text-red-700 font-black text-lg"
+                            className="bg-white border-4 border-black p-2 text-[#E53935] hover:bg-[#E53935] hover:text-white shadow-[3px_3px_0px_#000] active:shadow-none active:translate-x-0.5 active:translate-y-0.5 transition-all"
                           >
-                            ×
+                            <Trash2 className="w-5 h-5" strokeWidth={3} />
                           </button>
                         </ProtectedButton>
                       </td>
                     </tr>
                   ))}
-                  {receta.length === 0 && !loading && platoLocal && (
+                  {receta.length === 0 && !loading && (
                     <tr>
-                      <td colSpan={3} className="text-center py-10 text-gray-400 italic">
-                        No hay ingredientes asignados a este plato.
+                      <td colSpan={3} className="text-center py-16 text-gray-400 font-black uppercase italic text-sm tracking-widest">
+                        --- NO HAY INGREDIENTES REGISTRADOS ---
                       </td>
                     </tr>
                   )}
@@ -251,12 +258,13 @@ export const RecetasModal = ({ plato: initialPlato, open, onClose }: Props) => {
           </div>
         </div>
 
-        <div className="p-4 border-t bg-gray-50 rounded-b-xl text-right">
+        {/* FOOTER IGUAL AL CRUD */}
+        <div className="p-8 border-t-8 border-black bg-white flex justify-end">
           <button 
             onClick={onClose}
-            className="px-6 py-2 bg-gray-800 text-white rounded-lg font-bold hover:bg-black transition-all"
+            className="px-12 py-4 bg-[#263238] text-white border-4 border-black font-black uppercase italic text-lg shadow-[6px_6px_0px_#000] hover:bg-black active:shadow-none active:translate-x-1 active:translate-y-1 transition-all"
           >
-            Finalizar
+            FINALIZAR CONFIGURACIÓN
           </button>
         </div>
       </div>

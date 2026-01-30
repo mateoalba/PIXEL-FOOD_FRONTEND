@@ -83,49 +83,48 @@ export function CrudModal<T>({
     onSubmit(cleaned);
   };
 
-  // ESTILO DE INPUTS PIXEL-FOOD (Aumentado para el nuevo tamaño)
+  // ESTILO DE INPUTS ACTUALIZADO AL ESTILO PIXEL
   const inputClass = (isDisabled?: boolean) => `
-    w-full bg-[#F4F7F6] border-2 border-gray-200 rounded-2xl px-5 py-4 
-    text-lg font-bold text-[#263238] outline-none transition-all
+    w-full bg-white border-4 border-black px-5 py-3 
+    text-lg font-black text-[#263238] uppercase outline-none transition-all
     ${isDisabled 
-      ? 'opacity-50 cursor-not-allowed bg-gray-200' 
-      : 'focus:border-[#E53935] hover:border-gray-300 shadow-sm'}
+      ? 'opacity-50 cursor-not-allowed bg-gray-100' 
+      : 'focus:bg-yellow-50 focus:translate-x-1 focus:translate-y-1 focus:shadow-none shadow-[4px_4px_0px_#000]'}
   `;
 
   return (
-    <div className="fixed inset-0 bg-[#263238]/90 backdrop-blur-md flex items-center justify-center z-100 p-4 md:p-10">
+    <div className="fixed inset-0 bg-[#263238]/90 backdrop-blur-sm flex items-center justify-center z-100 p-4 md:p-10">
       
-      {/* CONTENEDOR XL: max-w-4xl lo hace mucho más alargado */}
-      <div className="bg-white rounded-[2.5rem] shadow-[0_35px_60px_-15px_rgba(0,0,0,0.5)] w-full max-w-4xl border border-white/20 overflow-hidden transform transition-all">
+      {/* CONTENEDOR ESTILO PIXEL */}
+      <div className="bg-white border-8 border-black shadow-[15px_15px_0px_#000] w-full max-w-4xl overflow-hidden transform transition-all">
         
-        {/* HEADER GRANDE */}
-        <div className="bg-[#263238] p-10 flex justify-between items-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-2 h-full bg-[#E53935]"></div>
+        {/* HEADER CON LÍNEA ROJA Y ESTILO RETRO */}
+        <div className="bg-[#263238] p-8 flex justify-between items-center relative border-b-8 border-black">
+          <div className="absolute top-0 left-0 w-3 h-full bg-[#E53935]"></div>
           <div>
-            <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">
+            <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter" style={{ textShadow: '2px 2px 0px #E53935' }}>
               {title}
             </h2>
-            <p className="text-[#E53935] text-xs font-black tracking-[0.3em] uppercase mt-1">Gestión de Sistema / Pixel-Food</p>
+            <p className="text-yellow-400 text-xs font-black tracking-[0.2em] uppercase mt-1">ESTACIÓN DE CONTROL</p>
           </div>
           <button 
             onClick={onClose} 
-            className="text-white/30 hover:text-[#E53935] transition-all p-3 hover:bg-white/5 rounded-full"
+            className="bg-[#E53935] border-4 border-black text-white p-2 hover:bg-white hover:text-black transition-all shadow-[4px_4px_0px_#000] active:shadow-none active:translate-x-1 active:translate-y-1"
           >
-            <X className="w-8 h-8" />
+            <X className="w-6 h-6" strokeWidth={4} />
           </button>
         </div>
 
-        <div className="p-10">
-          <div className="max-h-[65vh] overflow-y-auto pr-4 custom-scrollbar">
+        <div className="p-8 bg-[#F4F7F6]">
+          <div className="max-h-[60vh] overflow-y-auto pr-4 custom-scrollbar">
             {children ? (
               <div className="w-full">{children}</div>
             ) : (
               <>
-                {/* GRID DE 2 COLUMNAS para aprovechar el ancho */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
                   {fields.map(field => (
                     <div key={String(field.name)} className={field.type === 'text' && String(field.name).includes('nombre') ? 'md:col-span-2' : ''}>
-                      <label className="block text-[12px] font-black text-gray-400 uppercase tracking-[0.3em] mb-3 ml-2">
+                      <label className="block text-xs font-black text-[#263238] uppercase tracking-widest mb-3 italic">
                         {field.label} {field.required && <span className="text-[#E53935]">*</span>}
                       </label>
 
@@ -138,14 +137,14 @@ export function CrudModal<T>({
                             className={`${inputClass(field.disabled)} appearance-none cursor-pointer`}
                             required={field.required}
                           >
-                            <option value="" className="text-gray-400">Seleccionar opción...</option>
+                            <option value="" className="text-gray-400">SELECCIONAR...</option>
                             {field.options?.map(opt => (
-                              <option key={opt.value} value={opt.value} className="text-[#263238] font-bold">
-                                {opt.label}
+                              <option key={opt.value} value={opt.value} className="text-[#263238] font-black">
+                                {opt.label.toUpperCase()}
                               </option>
                             ))}
                           </select>
-                          <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                          <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-black font-black">
                             ▼
                           </div>
                         </div>
@@ -160,7 +159,7 @@ export function CrudModal<T>({
                             if (field.type === 'number' && e.key === '-') e.preventDefault();
                           }}
                           className={inputClass(field.disabled)}
-                          placeholder={field.type === 'password' ? '••••••••' : `Ingresar datos...`}
+                          placeholder="INGRESAR DATOS..."
                           required={field.required}
                         />
                       )}
@@ -168,23 +167,23 @@ export function CrudModal<T>({
                   ))}
                 </div>
 
-                {/* ACCIONES ALARGADAS */}
-                <div className="flex flex-col md:flex-row gap-4 mt-12 pt-8 border-t-2 border-gray-50">
+                {/* ACCIONES ESTILO BOTONES ARCADE */}
+                <div className="flex flex-col md:flex-row gap-6 mt-10 pt-8 border-t-4 border-black/10">
                   <button
                     type="button"
                     onClick={onClose}
-                    className="order-2 md:order-1 flex-1 text-gray-400 font-black py-5 rounded-2xl uppercase text-xs tracking-[0.3em] hover:bg-gray-50 hover:text-[#263238] transition-all"
+                    className="order-2 md:order-1 flex-1 bg-gray-200 border-4 border-black text-black font-black py-4 uppercase text-sm shadow-[4px_4px_0px_#000] hover:bg-white active:shadow-none active:translate-x-1 active:translate-y-1 transition-all"
                   >
-                    Descartar y Salir
+                    DESCARTAR
                   </button>
                   
                   <button
                     type="button"
                     onClick={handleSubmit}
-                    className="order-1 md:order-2 flex-2 bg-[#E53935] text-white font-black py-5 rounded-2xl text-xl uppercase italic tracking-tighter hover:bg-[#c62828] shadow-[0_10px_30px_-10px_rgba(229,57,53,0.5)] transition-all flex items-center justify-center gap-3"
+                    className="order-1 md:order-2 flex-[1.5] bg-[#43A047] text-white border-4 border-black font-black py-4 text-xl uppercase italic shadow-[6px_6px_0px_#000] hover:bg-[#388E3C] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all flex items-center justify-center gap-3"
                   >
-                    <CheckCircle2 className="w-7 h-7" />
-                    Guardar Configuración
+                    <CheckCircle2 className="w-6 h-6" strokeWidth={3} />
+                    GUARDAR CAMBIOS
                   </button>
                 </div>
               </>

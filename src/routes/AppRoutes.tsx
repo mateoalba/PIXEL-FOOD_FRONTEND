@@ -1,4 +1,5 @@
-import { Routes, Route, Navigate, useParams } from "react-router-dom";
+import { Routes, Route, Navigate, useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import ResumenDashboard from "../pages/ResumenDashboard"; 
 
 // Páginas existentes
@@ -24,7 +25,7 @@ import MetodoPagos from "@/pages/MetodoPagos";
 import Reservas from "@/pages/Reservas"; 
 import AdminReservas from "@/pages/AdminReservas";
 import MenuPage from "@/pages/MenuPage";
-import { useState } from "react";
+import OrdersPage from "@/pages/Carrito"; // <--- Asegúrate de que este archivo exista en pages
 
 // Wrapper para Detalle de Pedido
 const DetallePedidoWrapper = () => {
@@ -33,8 +34,8 @@ const DetallePedidoWrapper = () => {
 };
 
 const AppRoutes = () => {
-  // Estado simple para el carrito (puedes moverlo a un Context si prefieres)
   const [cart, setCart] = useState<any[]>([]);
+  const navigate = useNavigate(); // Hook para navegación real
 
   return (
     <Routes>
@@ -45,9 +46,7 @@ const AppRoutes = () => {
       {/* 2. RUTAS PRIVADAS */}
       <Route element={<PrivateRoute />}>
         
-        {/* --- RUTA DE PAGO UNIVERSAL --- 
-            Ubicada aquí para que Admin, Empleado y Cliente puedan entrar 
-            sin ser rebotados por permisos de 'AdminLayout' */}
+        {/* RUTA DE PAGO UNIVERSAL */}
         <Route path="/caja/:id" element={<PagoPage />} />
         
         {/* --- VISTAS DE CLIENTE (MainLayout) --- */}
@@ -55,23 +54,35 @@ const AppRoutes = () => {
           <Route path="/home" element={<Home />} />
           <Route path="/" element={<Navigate to="/home" replace />} />
 
-          {/* NUEVA RUTA DEL MENÚ PÚBLICO */}
+          {/* MENÚ PÚBLICO */}
           <Route 
             path="/menu" 
             element={
               <MenuPage 
-                onNavigate={(page) => console.log("Navegar a:", page)} 
+                onNavigate={(page) => navigate(`/${page}`)} 
                 cart={cart} 
                 setCart={setCart} 
               />
             } 
           />
 
-
+          {/* NUEVA PÁGINA DE MIS PEDIDOS (CARRITO PIXELADO) */}
+          <Route 
+            path="/carrito" 
+            element={
+              <OrdersPage 
+                onNavigate={(page) => navigate(`/${page}`)} 
+                cart={cart} 
+                setCart={setCart} 
+              />
+            } 
+          />
 
           <Route path="reservas" element={<Reservas />} />
-          <Route path="pedidos" element={<Pedidos />} />
-          <Route path="mis-pedidos" element={<Facturas />} />
+          
+          {/* Renombramos estas rutas para evitar conflictos con el Admin */}
+          <Route path="historial" element={<Pedidos />} />
+          <Route path="mis-facturas" element={<Facturas />} />
           <Route path="caja" element={<PagoPage />} />
         </Route>
 
@@ -115,7 +126,7 @@ const AppRoutes = () => {
               <Route path="recetas" element={<Recetas />} />
             </Route>
 
-            {/* Ventas y Pedidos */}
+            {/* Ventas y Pedidos del Administrador */}
             <Route element={<RoleRoute permisos={["ver_pedidos"]} />}>
               <Route path="pedidos" element={<Pedidos />} />
             </Route>

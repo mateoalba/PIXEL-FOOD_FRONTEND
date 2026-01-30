@@ -9,4 +9,11 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src'),
     },
   },
+  // --- AGREGA ESTA SECCIÓN ---
+  server: {
+    headers: {
+      "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
+      "Cross-Origin-Embedder-Policy": "unsafe-none",
+    },
+  },
 });

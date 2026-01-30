@@ -39,7 +39,7 @@ const Navbar = ({ cartItemsCount = 0 }) => {
     { name: 'HOME', path: '/home', icon: <Home className="w-5 h-5" strokeWidth={3} /> },
     { name: 'MENU', path: '/menu', icon: <MenuIcon className="w-5 h-5" strokeWidth={3} /> },
     { name: 'RESERVAS', path: '/reservas', icon: <CalendarCheck className="w-5 h-5" strokeWidth={3} /> },
-    { name: 'MIS PEDIDOS', path: '/mis-pedidos', icon: <ShoppingCart className="w-5 h-5" strokeWidth={3} />, badge: cartItemsCount },
+    { name: 'MIS PEDIDOS', path: '/carrito', icon: <ShoppingCart className="w-5 h-5" strokeWidth={3} />, badge: cartItemsCount },
     { name: 'PAGO', path: '/caja', icon: <Receipt className="w-5 h-5" strokeWidth={3} /> },
   ];
 
@@ -113,10 +113,14 @@ const Navbar = ({ cartItemsCount = 0 }) => {
                 {user?.nombre || 'Online'}
               </p>
             </div>
-            <button className="bg-white border-2 border-black p-2 shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all">
-              <User className="w-5 h-5 text-black" strokeWidth={3} />
-            </button>
-          </div>
+        {/* Cambiamos el <button> por un <Link> para redirigir al login */}
+          <Link 
+            to="/login" 
+            className="bg-white border-2 border-black p-2 shadow-[3px_3px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all block"
+          >
+            <User className="w-5 h-5 text-black" strokeWidth={3} />
+          </Link>
+        </div>
 
         </div>
       </div>
