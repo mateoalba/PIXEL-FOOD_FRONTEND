@@ -132,7 +132,7 @@ import { useState } from 'react';
                   className="bg-white hover:bg-gray-100 text-[#263238] border-4 border-black font-black uppercase px-6 py-2 hover:translate-x-1 hover:translate-y-1 transition-transform"
                   style={{ boxShadow: '4px 4px 0px #000000' }}
                 >
-                  {esCliente ? '+ Nuevo Pedido' : '+ Registrar Mesa'}
+                  {esCliente ? '+ Nuevo Pedido' : '+ Registrar Pedido'}
                 </button>
               </ProtectedButton>
             </div>
@@ -204,7 +204,7 @@ import { useState } from 'react';
 
         <CrudModal<Pedido>
           open={modalOpen}
-          title={selected ? 'EDITAR MESA' : 'NUEVA MESA'}
+          title={selected ? 'EDITAR PEDIDO' : 'NUEVO PEDIDO'}
           fields={[]} 
           onClose={() => { setModalOpen(false); setSelected(null); }}
           onSubmit={() => {}} 

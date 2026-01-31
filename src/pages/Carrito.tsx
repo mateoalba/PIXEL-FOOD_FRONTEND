@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Minus, Plus, Trash2, ShoppingBag, Clock, CheckCircle2 } from 'lucide-react';
 import axios from '@/api/axios';
 import { useAuth } from '@/hooks/useAuth';
+import { ConfirmModal } from '@/components/modal/ConfirmModal';
 
 interface CartItem {
-  id: string; // Cambiado a string para coincidir con el IsUUID del DTO
+  id: string; 
   name: string;
   price: number;
   quantity: number;
@@ -22,7 +23,15 @@ export default function OrdersPage({ onNavigate, cart, setCart }: OrdersPageProp
   const [orderStatus, setOrderStatus] = useState<'preparing' | 'ready'>('preparing');
   const [newOrderId, setNewOrderId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user } = useAuth(); // Obtenemos el usuario autenticado
+  
+  // ESTADOS PARA MODALES
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showSuccessCancel, setShowSuccessCancel] = useState(false); // Modal de éxito pixelado
+  
+  const [savedCart, setSavedCart] = useState<CartItem[]>([]);
+  const [savedTotal, setSavedTotal] = useState<number>(0);
+  
+  const { user } = useAuth();
 
   const updateQuantity = (id: string, change: number) => {
     const updatedCart = cart
@@ -41,19 +50,16 @@ export default function OrdersPage({ onNavigate, cart, setCart }: OrdersPageProp
   const tax = subtotal * 0.1;
   const total = subtotal + tax;
 
-// FUNCIÓN AJUSTADA PARA VACIAR EL CARRITO AL FINALIZAR
   const handlePlaceOrder = async () => {
     if (cart.length === 0 || isSubmitting) return;
 
     setIsSubmitting(true);
     try {
-      // 1. Preparamos los items según PedidoItemDto
       const itemsParaDto = cart.map(item => ({
         id_plato: item.id,
         cantidad: item.quantity
       }));
 
-      // 2. Construimos el body exacto para CreatePedidoDto
       const pedidoData = {
         tipo: 'LOCAL', 
         id_usuario: (user as any)?.id_usuario || undefined, 
@@ -63,19 +69,14 @@ export default function OrdersPage({ onNavigate, cart, setCart }: OrdersPageProp
         items: itemsParaDto 
       };
 
-      // 3. Enviamos una única petición POST
       const resPedido = await axios.post('/pedido', pedidoData);
-
-      // Extraemos el ID que devuelve tu Entity
       const pedidoId = resPedido.data.id_pedido || resPedido.data.id;
+
+      setSavedCart([...cart]);
+      setSavedTotal(total);
       setNewOrderId(pedidoId);
-
-      // --- CAMBIO CLAVE AQUÍ ---
-      // Vaciamos el carrito global inmediatamente para que no persista
       setCart([]); 
-      // -------------------------
 
-      // Éxito visual
       setOrderPlaced(true);
       setTimeout(() => {
         setOrderStatus('ready');
@@ -83,20 +84,59 @@ export default function OrdersPage({ onNavigate, cart, setCart }: OrdersPageProp
 
     } catch (error: any) {
       console.error("Error al procesar el pedido:", error.response?.data || error);
-      const msg = error.response?.data?.message;
-      alert(`Error de validación: ${Array.isArray(msg) ? msg.join(', ') : msg || 'Revisa la consola'}`);
     } finally {
       setIsSubmitting(false);
     }
   };
-  
 
+  const handleConfirmCancel = async () => {
+    if (!newOrderId) return;
+    try {
+      await axios.delete(`/pedido/${newOrderId}`);
+      
+      // En lugar de alert(), cerramos el de pregunta y abrimos el de éxito
+      setShowCancelModal(false);
+      setShowSuccessCancel(true); 
+    } catch (error: any) {
+      console.error("Error al cancelar el pedido:", error.response?.data || error);
+      setShowCancelModal(false);
+    }
+  };
+
+  // Función para cerrar todo e ir al menú después de cancelar con éxito
+  const finalizeCancellation = () => {
+    setShowSuccessCancel(false);
+    setOrderPlaced(false);
+    setNewOrderId(null);
+    setSavedCart([]);
+    onNavigate('menu');
+  };
+  
   const neoBtn = "transition-all duration-100 border-2 border-black shadow-[3px_3px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-none";
   const activeBtnAnim = "active:translate-y-1 active:shadow-none transition-all duration-100";
 
   if (orderPlaced) {
     return (
       <div className="min-h-screen bg-linear-to-br from-[#E53935] via-[#FB8C00] to-[#FBC02D] flex items-center justify-center p-6">
+        
+        {/* 1. MODAL DE PREGUNTA (¿Seguro?) */}
+        <ConfirmModal 
+          open={showCancelModal}
+          title="CANCELAR ORDEN"
+          message="¿Estás seguro de que deseas cancelar este pedido?."
+          onConfirm={handleConfirmCancel}
+          onCancel={() => setShowCancelModal(false)}
+        />
+
+        {/* 2. MODAL DE ÉXITO (Confirmación final pixelada) */}
+        <ConfirmModal 
+          open={showSuccessCancel}
+          title="ORDEN ANULADA"
+          message="Tu pedido ha sido cancelado exitosamente."
+          onConfirm={finalizeCancellation}
+          onCancel={finalizeCancellation} // Ambos botones sacan al usuario
+        />
+
         <div className="max-w-2xl w-full border-4 border-black bg-white p-10 text-center shadow-[16px_16px_0px_#000]">
           {orderStatus === 'preparing' ? (
             <>
@@ -116,7 +156,7 @@ export default function OrdersPage({ onNavigate, cart, setCart }: OrdersPageProp
               
               <div className="border-4 border-black p-6 mb-10 bg-gray-50 text-left relative shadow-[8px_8px_0px_#000]">
                 <div className="absolute -top-4 left-6 bg-[#263238] text-white border-2 border-black px-4 py-1 text-xs font-black uppercase italic">Ticket de Orden</div>
-                {cart.map((item) => (
+                {savedCart.map((item) => (
                   <div key={item.id} className="flex justify-between font-black text-sm mb-2 border-b-2 border-dashed border-gray-300 pb-2 uppercase">
                     <span>{item.name} <span className="text-[#E53935] ml-2">x{item.quantity}</span></span>
                     <span>${(item.price * item.quantity).toFixed(2)}</span>
@@ -124,7 +164,7 @@ export default function OrdersPage({ onNavigate, cart, setCart }: OrdersPageProp
                 ))}
                 <div className="mt-6 flex justify-between items-end">
                     <span className="font-black text-sm uppercase text-gray-500">Total a pagar:</span>
-                    <span className="font-black text-4xl text-[#E53935] italic">${total.toFixed(2)}</span>
+                    <span className="font-black text-4xl text-[#E53935] italic">${savedTotal.toFixed(2)}</span>
                 </div>
                 <div className="mt-6 bg-[#263238] border-4 border-black p-4 text-center shadow-[4px_4px_0px_#FB8C00]">
                     <p className="font-black text-2xl text-white italic uppercase">Orden <span className="text-[#FBC02D]">#{newOrderId?.toString().slice(0, 8) || '...'}</span></p>
@@ -140,10 +180,16 @@ export default function OrdersPage({ onNavigate, cart, setCart }: OrdersPageProp
                 Pagar Ahora
             </button>
             <button 
-                onClick={() => { setCart([]); onNavigate('menu'); }}
+                onClick={() => { setSavedCart([]); onNavigate('menu'); }}
                 className={`bg-white text-black border-4 border-black py-4 font-black uppercase shadow-[8px_8px_0px_#000] text-lg hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_#000] ${activeBtnAnim}`}
             >
                 Nueva Orden
+            </button>
+            <button 
+                onClick={() => setShowCancelModal(true)} 
+                className={`sm:col-span-2 bg-[#E53935] text-white border-4 border-black py-3 font-black uppercase shadow-[8px_8px_0px_#000] text-lg hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_#000] ${activeBtnAnim} text-center`}
+            >
+                Cancelar Orden
             </button>
           </div>
         </div>
